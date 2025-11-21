@@ -183,5 +183,6 @@ dependencies = [
     "python-slugify==8.0.4",
     "redis==7.0.1",
     "sentry-sdk==2.43.0",
+    "weasyprint==63.1",
     "whitenoise==6.11.0",
 ]

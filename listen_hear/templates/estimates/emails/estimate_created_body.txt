@@ -1,0 +1,35 @@
+Hello{% if estimate.builder.contact_person %} {{ estimate.builder.contact_person }}{% endif %},
+
+Thank you for selecting Listen Hear smart home packages! Your package summary {{ estimate.estimate_number }} has been created and is attached to this email.
+
+PACKAGE SUMMARY DETAILS
+-----------------------
+Summary Number: {{ estimate.estimate_number }}
+Date: {{ estimate.created_at|date:"F d, Y" }}
+Builder: {{ estimate.builder.company_name|default:estimate.builder.email }}
+{% if estimate.client_name %}Client: {{ estimate.client_name }}{% endif %}
+
+SELECTED PACKAGES
+-----------------
+{% for item in estimate.items.all %}• {{ item.package_name_snapshot }}: ${{ item.price_low_snapshot|floatformat:0 }} - ${{ item.price_high_snapshot|floatformat:0 }}
+{% endfor %}
+
+TOTAL PRICE RANGE: ${{ estimate.total_low|floatformat:0 }} - ${{ estimate.total_high|floatformat:0 }}
+
+{% if estimate.notes %}
+NOTES
+-----
+{{ estimate.notes }}
+{% endif %}
+
+NEXT STEPS
+----------
+A Listen Hear representative will contact you shortly to discuss your package selections and schedule installation.
+
+These smart home packages are available for purchase and installation at any time during your project timeline.
+
+Questions? Contact us at hello@listenhearaudio.com
+
+---
+Listen Hear Home Entertainment and Automation
+Generated with Claude Code

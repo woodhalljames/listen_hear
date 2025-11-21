@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}My Dashboard - Listen Hear{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <h1 class="mb-2"><i class="bi bi-grid"></i> My Dashboard</h1>
+      <p class="text-muted">Welcome back, {{ request.user.email }}</p>
+    </div>
+    <div class="col-md-4 text-md-end">
+      <a href="{% url 'packages:list' %}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> New Estimate
+      </a>
+      <a href="{% url 'users:update' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-person-gear"></i> Edit Profile
+      </a>
+    </div>
+  </div>
+
+  <!-- User Profile Summary -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <div class="row align-items-center">
+        <div class="col-md-2 text-center">
+          {% if request.user.avatar %}
+          <img src="{{ request.user.avatar.url }}" alt="Avatar" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover;">
+          {% else %}
+          <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px; font-size: 2rem;">
+            <i class="bi bi-person"></i>
+          </div>
+          {% endif %}
+        </div>
+        <div class="col-md-10">
+          <div class="row">
+            <div class="col-md-6">
+              <h5>{{ request.user.company_name|default:"Your Company" }}</h5>
+              <p class="mb-1"><strong>Contact:</strong> {{ request.user.contact_person|default:"Not set" }}</p>
+              <p class="mb-0"><strong>Email:</strong> {{ request.user.email }}</p>
+            </div>
+            <div class="col-md-6">
+              <p class="mb-1"><strong>Phone:</strong> {{ request.user.phone|default:"Not set" }}</p>
+              {% if request.user.website %}
+              <p class="mb-0"><strong>Website:</strong> <a href="{{ request.user.website }}" target="_blank">{{ request.user.website }}</a></p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estimates List -->
+  <div class="card shadow-sm">
+    <div class="card-header bg-white">
+      <h5 class="mb-0"><i class="bi bi-file-earmark-text"></i> My Estimates</h5>
+    </div>
+    <div class="card-body p-0">
+      {% if estimates %}
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Estimate #</th>
+              <th>Client</th>
+              <th>Date</th>
+              <th class="text-end">Price Range</th>
+              <th class="text-center">Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for estimate in estimates %}
+            <tr>
+              <td>
+                <strong class="text-primary">{{ estimate.estimate_number }}</strong>
+              </td>
+              <td>
+                {% if estimate.client_name %}
+                  {{ estimate.client_name }}
+                {% else %}
+                  <span class="text-muted">N/A</span>
+                {% endif %}
+              </td>
+              <td>{{ estimate.created_at|date:"M d, Y" }}</td>
+              <td class="text-end">
+                <span class="text-nowrap">
+                  ${{ estimate.total_low|floatformat:0 }} - ${{ estimate.total_high|floatformat:0 }}
+                </span>
+              </td>
+              <td class="text-center">
+                {% if estimate.status == 'pending' %}
+                  <span class="badge bg-warning text-dark">Pending</span>
+                {% elif estimate.status == 'contacted' %}
+                  <span class="badge bg-info">Contacted</span>
+                {% elif estimate.status == 'converted' %}
+                  <span class="badge bg-success">Converted</span>
+                {% else %}
+                  <span class="badge bg-secondary">Archived</span>
+                {% endif %}
+              </td>
+              <td class="text-end">
+                <a href="{% url 'estimates:detail' estimate.estimate_number %}" class="btn btn-sm btn-outline-primary">
+                  View <i class="bi bi-arrow-right"></i>
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="text-center py-5">
+        <i class="bi bi-inbox text-muted mb-3" style="font-size: 4rem;"></i>
+        <h5 class="mb-3">No estimates yet</h5>
+        <p class="text-muted mb-4">Start building your first estimate by browsing our packages</p>
+        <a href="{% url 'packages:list' %}" class="btn btn-primary">
+          <i class="bi bi-box-seam me-2"></i>Browse Packages
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock content %}

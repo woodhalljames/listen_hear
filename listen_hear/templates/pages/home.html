@@ -1,3 +1,167 @@
 {% extends "base.html" %}
+{% load static %}
 
+{% block title %}Listen Hear - Easy Smart Home Installations for Builders and Designers.{% endblock %}
 
+{% block content %}
+<!-- Hero Section -->
+<div class="bg-primary text-white py-5 mb-5">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-8">
+        <h1 class="display-4 fw-bold mb-3">Smart Home Package Estimator</h1>
+        <p class="lead mb-4">
+          Browse our curated smart home packages, gather accurate estimates for your clients to include in construction costs,
+          and receive detailed pricing, tax, and utility discounts. Designed for builders who want to simplify
+          the smart home integration process. Increasing the value and longevity of your homes. 
+        </p>
+        <div class="d-flex gap-3">
+          <a href="{% url 'packages:list' %}" class="btn btn-light btn-lg">
+            <i class="bi bi-box-seam me-2"></i>Browse Packages
+          </a>
+          {% if not request.user.is_authenticated %}
+            <a href="{% url 'account_signup' %}" class="btn btn-outline-light btn-lg">
+              <i class="bi bi-person-plus me-2"></i>Create Account
+            </a>
+          {% endif %}
+        </div>
+      </div>
+      <div class="col-lg-4 d-none d-lg-block text-center">
+        <i class="bi bi-house-gear" style="font-size: 8rem; opacity: 0.3;"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Featured Categories -->
+{% if categories %}
+<div class="container mb-5">
+  <h2 class="mb-4">Browse by Category</h2>
+  <div class="row g-4">
+    {% for category in categories %}
+    <div class="col-md-4">
+      <div class="card h-100 border-0 shadow-sm hover-shadow">
+        <div class="card-body text-center p-4">
+          <div class="mb-3">
+            <i class="bi bi-grid-3x3-gap text-primary" style="font-size: 3rem;"></i>
+          </div>
+          <h5 class="card-title">{{ category.name }}</h5>
+          <p class="card-text text-muted">{{ category.description|truncatewords:15 }}</p>
+          <a href="{% url 'packages:category_list' category.id %}" class="btn btn-outline-primary">
+            View Packages <i class="bi bi-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- Featured Packages -->
+{% if featured_packages %}
+<div class="container mb-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Featured Packages</h2>
+    <a href="{% url 'packages:list' %}" class="btn btn-link">View All <i class="bi bi-arrow-right"></i></a>
+  </div>
+  <div class="row g-4">
+    {% for package in featured_packages %}
+    <div class="col-md-6 col-lg-4">
+      <div class="card h-100 border-0 shadow-sm hover-shadow">
+        {% if package.image %}
+        <img src="{{ package.image.url }}" class="card-img-top" alt="{{ package.name }}" style="height: 200px; object-fit: cover;">
+        {% else %}
+        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+          <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+        </div>
+        {% endif %}
+        <div class="card-body d-flex flex-column">
+          <div class="mb-2">
+            <span class="badge bg-secondary text-dark">{{ package.category.name }}</span>
+            {% if package.utility_incentive_eligible %}
+            <span class="badge bg-success">Utility Incentive Eligible</span>
+            {% endif %}
+          </div>
+          <h5 class="card-title">{{ package.name }}</h5>
+          <p class="card-text text-muted small">{{ package.description|truncatewords:20 }}</p>
+          <div class="mt-auto">
+            <div class="mb-3">
+              <h6 class="text-primary mb-0">
+                ${{ package.price_low|floatformat:0 }} - ${{ package.price_high|floatformat:0 }}
+              </h6>
+              <small class="text-muted">Estimated range</small>
+            </div>
+            <a href="{% url 'packages:detail' package.pk %}" class="btn btn-outline-primary w-100">
+              View Details <i class="bi bi-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- How It Works -->
+<div class="bg-light py-5 mb-5">
+  <div class="container">
+    <h2 class="text-center mb-5">How It Works</h2>
+    <div class="row g-4">
+      <div class="col-md-3 text-center">
+        <div class="mb-3">
+          <i class="bi bi-search text-primary" style="font-size: 3rem;"></i>
+        </div>
+        <h5>1. Browse Packages</h5>
+        <p class="text-muted">Explore our curated smart home packages organized by category</p>
+      </div>
+      <div class="col-md-3 text-center">
+        <div class="mb-3">
+          <i class="bi bi-cart-plus text-primary" style="font-size: 3rem;"></i>
+        </div>
+        <h5>2. Add to Cart</h5>
+        <p class="text-muted">Select packages that fit your client's needs</p>
+      </div>
+      <div class="col-md-3 text-center">
+        <div class="mb-3">
+          <i class="bi bi-file-earmark-text text-primary" style="font-size: 3rem;"></i>
+        </div>
+        <h5>3. Request Estimate</h5>
+        <p class="text-muted">Submit your selections to generate a detailed estimate. Deliver estimates to homeowner. Set estimated installation dates.</p>
+      </div>
+      <div class="col-md-3 text-center">
+        <div class="mb-3">
+          <i class="bi bi-envelope-check text-primary" style="font-size: 3rem;"></i>
+        </div>
+        <h5>4. Receive PDF</h5>
+        <p class="text-muted">PDF estimate via email instantly.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA Section -->
+<div class="container text-center mb-5">
+  <h2 class="mb-3">Ready to Get Started?</h2>
+  <p class="lead text-muted mb-4">Create an account to save your estimates and access your dashboard</p>
+  {% if not request.user.is_authenticated %}
+  <a href="{% url 'account_signup' %}" class="btn btn-primary btn-lg">
+    <i class="bi bi-person-plus me-2"></i>Sign Up Free
+  </a>
+  {% else %}
+  <a href="{% url 'packages:list' %}" class="btn btn-primary btn-lg">
+    <i class="bi bi-box-seam me-2"></i>Start Building Estimate
+  </a>
+  {% endif %}
+</div>
+
+<style>
+  .hover-shadow {
+    transition: box-shadow 0.3s ease-in-out;
+  }
+  .hover-shadow:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+  }
+</style>
+{% endblock content %}

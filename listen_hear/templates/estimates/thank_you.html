@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Thank You - Listen Hear{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="row">
+    <div class="col-lg-8 mx-auto">
+      <!-- Success Message -->
+      <div class="text-center mb-5">
+        <div class="mb-4">
+          <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
+        </div>
+        <h1 class="mb-3">Thank You!</h1>
+        <p class="lead">Your estimate request has been submitted successfully.</p>
+      </div>
+
+      <!-- Estimate Details Card -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <h5 class="mb-3">Estimate Details</h5>
+              <p class="mb-1"><strong>Estimate Number:</strong> <span class="text-primary">{{ estimate.estimate_number }}</span></p>
+              <p class="mb-1"><strong>Created:</strong> {{ estimate.created_at|date:"F d, Y \a\t g:i A" }}</p>
+              <p class="mb-1"><strong>Builder:</strong> {{ estimate.builder.email }}</p>
+              {% if estimate.client_name %}
+              <p class="mb-1"><strong>Client:</strong> {{ estimate.client_name }}</p>
+              {% endif %}
+            </div>
+            <div class="col-md-6">
+              <h5 class="mb-3">Estimate Range</h5>
+              <div class="bg-light p-3 rounded">
+                <div class="d-flex justify-content-between mb-2">
+                  <span>Low Estimate:</span>
+                  <span class="fw-bold text-success">${{ estimate.total_low|floatformat:0 }}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <span>High Estimate:</span>
+                  <span class="fw-bold text-primary">${{ estimate.total_high|floatformat:0 }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Packages List -->
+          <h6 class="mb-3">Included Packages</h6>
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>Package</th>
+                  <th class="text-end">Price Range</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in estimate.items.all %}
+                <tr>
+                  <td>{{ item.package_name_snapshot }}</td>
+                  <td class="text-end">
+                    ${{ item.price_low_snapshot|floatformat:0 }} - ${{ item.price_high_snapshot|floatformat:0 }}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Next Steps -->
+      <div class="alert alert-info">
+        <h6 class="alert-heading"><i class="bi bi-lightbulb"></i> What's Next?</h6>
+        <ul class="mb-0">
+          <li>A Listen Hear representative will contact you shortly to discuss your estimate</li>
+          <li>You'll receive a detailed PDF estimate via email</li>
+          <li>Final pricing will be confirmed based on your specific requirements</li>
+        </ul>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+        {% if request.user.is_authenticated %}
+        <a href="{% url 'estimates:dashboard' %}" class="btn btn-primary">
+          <i class="bi bi-grid"></i> View My Dashboard
+        </a>
+        <a href="{% url 'estimates:detail' estimate.estimate_number %}" class="btn btn-outline-primary">
+          <i class="bi bi-file-earmark-text"></i> View Estimate Details
+        </a>
+        {% endif %}
+        <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+          <i class="bi bi-house"></i> Return to Home
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

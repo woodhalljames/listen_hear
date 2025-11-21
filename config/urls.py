@@ -6,8 +6,10 @@ from django.urls import path
 from django.views import defaults as default_views
 from django.views.generic import TemplateView
 
+from listen_hear.packages import views as package_views
+
 urlpatterns = [
-    path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
+    path("", package_views.home, name="home"),
     path(
         "about/",
         TemplateView.as_view(template_name="pages/about.html"),
@@ -19,6 +21,9 @@ urlpatterns = [
     path("users/", include("listen_hear.users.urls", namespace="users")),
     path("accounts/", include("allauth.urls")),
     # Your stuff: custom urls includes go here
+    path("packages/", include("listen_hear.packages.urls", namespace="packages")),
+    path("cart/", include("listen_hear.cart.urls", namespace="cart")),
+    path("estimates/", include("listen_hear.estimates.urls", namespace="estimates")),
     # ...
     # Media files
     *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),

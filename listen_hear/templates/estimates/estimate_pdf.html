@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Estimate {{ estimate.estimate_number }}</title>
+  <style>
+    @page {
+      size: letter;
+      margin: 1in;
+      @bottom-right {
+        content: "Page " counter(page) " of " counter(pages);
+        font-size: 10px;
+        color: #666;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 11pt;
+      line-height: 1.6;
+      color: #2f2e2e;
+    }
+
+    .header {
+      border-bottom: 3px solid #417ce3;
+      padding-bottom: 20px;
+      margin-bottom: 30px;
+    }
+
+    .company-name {
+      font-size: 24pt;
+      font-weight: bold;
+      color: #417ce3;
+      margin: 0;
+    }
+
+    .tagline {
+      color: #666;
+      font-size: 10pt;
+      margin: 5px 0 0 0;
+    }
+
+    .estimate-info {
+      background-color: #f8f9fa;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-left: 4px solid #417ce3;
+    }
+
+    .estimate-number {
+      font-size: 18pt;
+      font-weight: bold;
+      color: #417ce3;
+      margin: 0 0 10px 0;
+    }
+
+    .info-grid {
+      display: table;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .info-row {
+      display: table-row;
+    }
+
+    .info-cell {
+      display: table-cell;
+      width: 50%;
+      padding: 10px;
+      vertical-align: top;
+    }
+
+    .info-section {
+      margin-bottom: 15px;
+    }
+
+    .info-label {
+      font-weight: bold;
+      color: #666;
+      font-size: 9pt;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .info-value {
+      font-size: 10pt;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+
+    th {
+      background-color: #417ce3;
+      color: white;
+      padding: 12px;
+      text-align: left;
+      font-size: 10pt;
+      text-transform: uppercase;
+    }
+
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #dee2e6;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f8f9fa;
+    }
+
+    .text-end {
+      text-align: right;
+    }
+
+    .total-row {
+      background-color: #417ce3 !important;
+      color: white;
+      font-weight: bold;
+      font-size: 12pt;
+    }
+
+    .total-row td {
+      border: none;
+      padding: 15px 12px;
+    }
+
+    .notes-section {
+      margin-top: 30px;
+      padding: 15px;
+      background-color: #fff3cd;
+      border-left: 4px solid #fbd01c;
+    }
+
+    .notes-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #2f2e2e;
+    }
+
+    .footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 2px solid #dee2e6;
+      font-size: 9pt;
+      color: #666;
+      text-align: center;
+    }
+
+    .disclaimer {
+      margin-top: 30px;
+      padding: 15px;
+      background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+      font-size: 9pt;
+      color: #666;
+    }
+
+    .price-low {
+      color: #28a745;
+    }
+
+    .price-high {
+      color: #417ce3;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <h1 class="company-name">Listen Hear</h1>
+    <p class="tagline">Home Entertainment and Automation</p>
+  </div>
+
+  <!-- Package Summary Info -->
+  <div class="estimate-info">
+    <h2 class="estimate-number">Package Summary {{ estimate.estimate_number }}</h2>
+    <p style="margin: 0; font-size: 10pt;">
+      <strong>Date:</strong> {{ estimate.created_at|date:"F d, Y" }}
+    </p>
+  </div>
+
+  <!-- Builder and Client Info -->
+  <div class="info-grid">
+    <div class="info-row">
+      <div class="info-cell">
+        <div class="info-section">
+          <div class="info-label">Builder Information</div>
+          <div class="info-value">
+            {% if estimate.builder.company_name %}
+              <strong>{{ estimate.builder.company_name }}</strong><br>
+            {% endif %}
+            {% if estimate.builder.contact_person %}
+              {{ estimate.builder.contact_person }}<br>
+            {% endif %}
+            {{ estimate.builder.email }}<br>
+            {% if estimate.builder.phone %}
+              {{ estimate.builder.phone }}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="info-cell">
+        <div class="info-section">
+          <div class="info-label">Client/Homeowner Information</div>
+          <div class="info-value">
+            {% if estimate.client_name %}
+              <strong>{{ estimate.client_name }}</strong><br>
+            {% endif %}
+            {% if estimate.client_email %}
+              {{ estimate.client_email }}
+            {% else %}
+              <em>Not provided</em>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Package Items Table -->
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 60%;">Package Description</th>
+        <th style="width: 20%;" class="text-end">Price Low</th>
+        <th style="width: 20%;" class="text-end">Price High</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in estimate.items.all %}
+      <tr>
+        <td>
+          <strong>{{ item.package_name_snapshot }}</strong>
+          {% if item.package %}
+            <br><small style="color: #666;">{{ item.package.category.name }}</small>
+          {% endif %}
+        </td>
+        <td class="text-end price-low">${{ item.price_low_snapshot|floatformat:2 }}</td>
+        <td class="text-end price-high">${{ item.price_high_snapshot|floatformat:2 }}</td>
+      </tr>
+      {% endfor %}
+      <tr class="total-row">
+        <td><strong>TOTAL PRICE RANGE</strong></td>
+        <td class="text-end">${{ estimate.total_low|floatformat:2 }}</td>
+        <td class="text-end">${{ estimate.total_high|floatformat:2 }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Notes -->
+  {% if estimate.notes %}
+  <div class="notes-section">
+    <div class="notes-title">Additional Notes:</div>
+    <div>{{ estimate.notes|linebreaks }}</div>
+  </div>
+  {% endif %}
+
+  <!-- Disclaimer -->
+  <div class="disclaimer">
+    <strong>Package Pricing:</strong> Prices shown represent the range for each smart home package.
+    Final installation pricing is determined by site conditions, specific product selections, and installation requirements.
+    These packages are available for purchase and scheduling at any time during your project timeline.
+    Pricing is valid for 30 days from the date of issue.
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <p>
+      <strong>Listen Hear Home Entertainment and Automation</strong><br>
+      Email: hello@listenhearaudio.com<br>
+      Generated with Claude Code
+    </p>
+  </div>
+</body>
+</html>

@@ -21,12 +21,12 @@ user_detail_view = UserDetailView.as_view()
 
 class UserUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = User
-    fields = ["name"]
+    fields = ["name", "company_name", "contact_person", "phone", "bio", "website", "avatar"]
     success_message = _("Information successfully updated")
 
     def get_success_url(self) -> str:
         assert self.request.user.is_authenticated  # type guard
-        return self.request.user.get_absolute_url()
+        return reverse("estimates:dashboard")
 
     def get_object(self, queryset: QuerySet | None=None) -> User:
         assert self.request.user.is_authenticated  # type guard
@@ -40,7 +40,7 @@ class UserRedirectView(LoginRequiredMixin, RedirectView):
     permanent = False
 
     def get_redirect_url(self) -> str:
-        return reverse("users:detail", kwargs={"pk": self.request.user.pk})
+        return reverse("estimates:dashboard")
 
 
 user_redirect_view = UserRedirectView.as_view()

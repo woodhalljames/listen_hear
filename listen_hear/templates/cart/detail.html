@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Shopping Cart - Listen Hear{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <h1 class="mb-4"><i class="bi bi-cart3"></i> Your Cart</h1>
+
+  {% if cart|length > 0 %}
+  <div class="row">
+    <div class="col-lg-8">
+      <!-- Cart Items -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Package</th>
+                  <th class="text-center">Quantity</th>
+                  <th class="text-end">Price Range</th>
+                  <th class="text-end">Total Range</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in cart %}
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      {% if item.package.image %}
+                      <img src="{{ item.package.image.url }}" alt="{{ item.name }}" class="rounded me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                      {% else %}
+                      <div class="bg-light rounded me-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                        <i class="bi bi-image text-muted"></i>
+                      </div>
+                      {% endif %}
+                      <div>
+                        <h6 class="mb-0">{{ item.name }}</h6>
+                        <small class="text-muted">{{ item.package.category.name }}</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="align-middle">
+                    <div class="d-flex justify-content-center align-items-center">
+                      <form method="post" action="{% url 'cart:cart_update' item.package.id %}" class="d-inline">
+                        {% csrf_token %}
+                        <div class="input-group input-group-sm" style="width: 120px;">
+                          <button class="btn btn-outline-secondary" type="button" onclick="decrementQuantity(this)">
+                            <i class="bi bi-dash"></i>
+                          </button>
+                          <input type="number" name="quantity" class="form-control text-center" value="{{ item.quantity }}" min="0" max="99">
+                          <button class="btn btn-outline-secondary" type="button" onclick="incrementQuantity(this)">
+                            <i class="bi bi-plus"></i>
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </td>
+                  <td class="align-middle text-end">
+                    <div class="text-nowrap">
+                      ${{ item.price_low|floatformat:0 }} - ${{ item.price_high|floatformat:0 }}
+                    </div>
+                  </td>
+                  <td class="align-middle text-end">
+                    <div class="text-nowrap fw-bold">
+                      ${{ item.total_low|floatformat:0 }} - ${{ item.total_high|floatformat:0 }}
+                    </div>
+                  </td>
+                  <td class="align-middle text-end">
+                    <form method="post" action="{% url 'cart:cart_remove' item.package.id %}" class="d-inline">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cart Summary -->
+    <div class="col-lg-4">
+      <div class="card shadow-sm sticky-top" style="top: 20px;">
+        <div class="card-body">
+          <h5 class="card-title mb-4">Estimate Summary</h5>
+
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Total Packages:</span>
+            <span class="fw-bold">{{ cart|length }}</span>
+          </div>
+
+          <hr>
+
+          <div class="mb-3">
+            <div class="d-flex justify-content-between mb-2">
+              <span>Estimated Low:</span>
+              <span class="text-success fw-bold">${{ cart.get_total_low|floatformat:0 }}</span>
+            </div>
+            <div class="d-flex justify-content-between">
+              <span>Estimated High:</span>
+              <span class="text-primary fw-bold">${{ cart.get_total_high|floatformat:0 }}</span>
+            </div>
+          </div>
+
+          <div class="alert alert-info py-2 px-3 small mb-3">
+            <i class="bi bi-info-circle"></i> Final pricing will be confirmed after consultation
+          </div>
+
+          <div class="d-grid gap-2">
+            <a href="{% url 'estimates:checkout' %}" class="btn btn-primary btn-lg">
+              <i class="bi bi-file-earmark-check"></i> Request Estimate
+            </a>
+            <a href="{% url 'packages:list' %}" class="btn btn-outline-secondary">
+              <i class="bi bi-arrow-left"></i> Continue Shopping
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% else %}
+  <!-- Empty Cart -->
+  <div class="row">
+    <div class="col-lg-6 mx-auto">
+      <div class="card shadow-sm">
+        <div class="card-body text-center py-5">
+          <i class="bi bi-cart-x text-muted mb-3" style="font-size: 4rem;"></i>
+          <h4 class="mb-3">Your cart is empty</h4>
+          <p class="text-muted mb-4">Start browsing our packages to build your estimate</p>
+          <a href="{% url 'packages:list' %}" class="btn btn-primary">
+            <i class="bi bi-box-seam me-2"></i>Browse Packages
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+function incrementQuantity(button) {
+  const input = button.parentElement.querySelector('input[type="number"]');
+  const currentValue = parseInt(input.value);
+  if (currentValue < 99) {
+    input.value = currentValue + 1;
+    button.closest('form').submit();
+  }
+}
+
+function decrementQuantity(button) {
+  const input = button.parentElement.querySelector('input[type="number"]');
+  const currentValue = parseInt(input.value);
+  if (currentValue > 0) {
+    input.value = currentValue - 1;
+    button.closest('form').submit();
+  }
+}
+
+// Auto-submit on manual input change
+document.querySelectorAll('input[name="quantity"]').forEach(input => {
+  let timeout;
+  input.addEventListener('change', function() {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      this.closest('form').submit();
+    }, 500);
+  });
+});
+</script>
+{% endblock content %}

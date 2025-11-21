@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Estimate {{ estimate.estimate_number }} - Listen Hear{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'estimates:dashboard' %}">Dashboard</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ estimate.estimate_number }}</li>
+    </ol>
+  </nav>
+
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <h1 class="mb-2">Estimate {{ estimate.estimate_number }}</h1>
+      <p class="text-muted">Created on {{ estimate.created_at|date:"F d, Y \a\t g:i A" }}</p>
+    </div>
+    <div class="col-md-4 text-md-end">
+      <div class="btn-group">
+        <button type="button" class="btn btn-primary">
+          <i class="bi bi-file-pdf"></i> Download PDF
+        </button>
+        <button type="button" class="btn btn-outline-primary">
+          <i class="bi bi-envelope"></i> Email
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Estimate Details -->
+    <div class="col-lg-8">
+      <!-- Client Information -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white">
+          <h5 class="mb-0"><i class="bi bi-info-circle"></i> Estimate Information</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <h6 class="text-muted mb-2">Builder Details</h6>
+              <p class="mb-1"><strong>Company:</strong> {{ estimate.builder.company_name|default:"N/A" }}</p>
+              <p class="mb-1"><strong>Contact:</strong> {{ estimate.builder.contact_person|default:"N/A" }}</p>
+              <p class="mb-1"><strong>Email:</strong> {{ estimate.builder.email }}</p>
+              <p class="mb-0"><strong>Phone:</strong> {{ estimate.builder.phone|default:"N/A" }}</p>
+            </div>
+            <div class="col-md-6">
+              <h6 class="text-muted mb-2">Client/Homeowner Details</h6>
+              {% if estimate.client_name or estimate.client_email %}
+                <p class="mb-1"><strong>Name:</strong> {{ estimate.client_name|default:"N/A" }}</p>
+                <p class="mb-0"><strong>Email:</strong> {{ estimate.client_email|default:"N/A" }}</p>
+              {% else %}
+                <p class="text-muted">No client information provided</p>
+              {% endif %}
+            </div>
+          </div>
+
+          {% if estimate.notes %}
+          <hr>
+          <h6 class="text-muted mb-2">Additional Notes</h6>
+          <p class="mb-0">{{ estimate.notes|linebreaks }}</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Package Items -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white">
+          <h5 class="mb-0"><i class="bi bi-box-seam"></i> Packages</h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Package</th>
+                  <th class="text-end">Price Low</th>
+                  <th class="text-end">Price High</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in estimate.items.all %}
+                <tr>
+                  <td>
+                    <strong>{{ item.package_name_snapshot }}</strong>
+                    {% if item.package %}
+                    <br>
+                    <small class="text-muted">{{ item.package.category.name }}</small>
+                    {% endif %}
+                  </td>
+                  <td class="text-end">${{ item.price_low_snapshot|floatformat:0 }}</td>
+                  <td class="text-end">${{ item.price_high_snapshot|floatformat:0 }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+              <tfoot class="table-light">
+                <tr>
+                  <th>Total Estimate Range</th>
+                  <th class="text-end text-success">${{ estimate.total_low|floatformat:0 }}</th>
+                  <th class="text-end text-primary">${{ estimate.total_high|floatformat:0 }}</th>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Installation Phases -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white">
+          <h5 class="mb-0"><i class="bi bi-tools"></i> Installation Phases</h5>
+        </div>
+        <div class="card-body">
+          {% with phases=estimate.items.all|dictsort:"package.requires_phase.order" %}
+            {% regroup phases by package.requires_phase as phase_groups %}
+            {% if phase_groups %}
+              <div class="row">
+                {% for group in phase_groups %}
+                  <div class="col-md-6 mb-3">
+                    <div class="border rounded p-3">
+                      <h6 class="mb-2">
+                        {% if group.grouper %}
+                          {{ group.grouper.name }}
+                        {% else %}
+                          General Installation
+                        {% endif %}
+                      </h6>
+                      <ul class="small mb-0">
+                        {% for item in group.list %}
+                          <li>{{ item.package_name_snapshot }}</li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <p class="text-muted mb-0">No specific installation phases required</p>
+            {% endif %}
+          {% endwith %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+      <!-- Status Card -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white">
+          <h6 class="mb-0">Status</h6>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            {% if estimate.status == 'pending' %}
+              <span class="badge bg-warning text-dark fs-6">Pending Review</span>
+            {% elif estimate.status == 'contacted' %}
+              <span class="badge bg-info fs-6">Contacted</span>
+            {% elif estimate.status == 'converted' %}
+              <span class="badge bg-success fs-6">Converted</span>
+            {% else %}
+              <span class="badge bg-secondary fs-6">Archived</span>
+            {% endif %}
+          </div>
+          <p class="small text-muted mb-0">
+            Last updated: {{ estimate.updated_at|date:"M d, Y" }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Quick Stats -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white">
+          <h6 class="mb-0">Summary</h6>
+        </div>
+        <div class="card-body">
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Total Packages:</span>
+            <strong>{{ estimate.items.count }}</strong>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Low Estimate:</span>
+            <strong class="text-success">${{ estimate.total_low|floatformat:0 }}</strong>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span class="text-muted">High Estimate:</span>
+            <strong class="text-primary">${{ estimate.total_high|floatformat:0 }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="card shadow-sm">
+        <div class="card-header bg-white">
+          <h6 class="mb-0">Actions</h6>
+        </div>
+        <div class="card-body">
+          <div class="d-grid gap-2">
+            <button class="btn btn-outline-primary" disabled>
+              <i class="bi bi-file-pdf"></i> Download PDF
+            </button>
+            <button class="btn btn-outline-primary" disabled>
+              <i class="bi bi-envelope"></i> Email Estimate
+            </button>
+            <a href="{% url 'estimates:dashboard' %}" class="btn btn-outline-secondary">
+              <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+          </div>
+          <p class="small text-muted mt-3 mb-0">
+            <i class="bi bi-info-circle"></i> PDF and email features coming soon
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Package Summary</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f8f9fa;">
+  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f8f9fa;">
+    <tr>
+      <td style="padding: 40px 20px;">
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <!-- Header -->
+          <tr>
+            <td style="background-color: #417ce3; padding: 30px; text-align: center;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">Listen Hear</h1>
+              <p style="margin: 5px 0 0 0; color: #ffffff; font-size: 14px;">Home Entertainment and Automation</p>
+            </td>
+          </tr>
+
+          <!-- Main Content -->
+          <tr>
+            <td style="padding: 40px 30px;">
+              <h2 style="margin: 0 0 20px 0; color: #2f2e2e; font-size: 24px;">Your Package Summary is Ready!</h2>
+
+              <p style="margin: 0 0 20px 0; color: #2f2e2e; line-height: 1.6;">
+                Hello{% if estimate.builder.contact_person %} {{ estimate.builder.contact_person }}{% endif %},
+              </p>
+
+              <p style="margin: 0 0 20px 0; color: #2f2e2e; line-height: 1.6;">
+                Thank you for selecting Listen Hear smart home packages! Your package summary <strong>{{ estimate.estimate_number }}</strong> has been created and is attached to this email as a PDF.
+              </p>
+
+              <!-- Summary Info Box -->
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f8f9fa; border-left: 4px solid #417ce3; margin: 20px 0;">
+                <tr>
+                  <td style="padding: 20px;">
+                    <p style="margin: 0 0 10px 0; color: #666; font-size: 14px;">
+                      <strong style="color: #2f2e2e;">Summary Number:</strong> {{ estimate.estimate_number }}
+                    </p>
+                    <p style="margin: 0 0 10px 0; color: #666; font-size: 14px;">
+                      <strong style="color: #2f2e2e;">Date:</strong> {{ estimate.created_at|date:"F d, Y" }}
+                    </p>
+                    <p style="margin: 0 0 10px 0; color: #666; font-size: 14px;">
+                      <strong style="color: #2f2e2e;">Builder:</strong> {{ estimate.builder.company_name|default:estimate.builder.email }}
+                    </p>
+                    {% if estimate.client_name %}
+                    <p style="margin: 0; color: #666; font-size: 14px;">
+                      <strong style="color: #2f2e2e;">Client:</strong> {{ estimate.client_name }}
+                    </p>
+                    {% endif %}
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Packages List -->
+              <h3 style="margin: 30px 0 15px 0; color: #2f2e2e; font-size: 18px;">Selected Packages</h3>
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="border-top: 2px solid #dee2e6;">
+                {% for item in estimate.items.all %}
+                <tr>
+                  <td style="padding: 15px 0; border-bottom: 1px solid #dee2e6;">
+                    <p style="margin: 0 0 5px 0; color: #2f2e2e; font-weight: bold;">{{ item.package_name_snapshot }}</p>
+                    <p style="margin: 0; color: #666; font-size: 14px;">
+                      ${{ item.price_low_snapshot|floatformat:0 }} - ${{ item.price_high_snapshot|floatformat:0 }}
+                    </p>
+                  </td>
+                </tr>
+                {% endfor %}
+                <tr>
+                  <td style="padding: 20px 0;">
+                    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #417ce3;">
+                      <tr>
+                        <td style="padding: 15px; color: #ffffff;">
+                          <p style="margin: 0; font-size: 16px; font-weight: bold;">
+                            TOTAL PRICE RANGE: ${{ estimate.total_low|floatformat:0 }} - ${{ estimate.total_high|floatformat:0 }}
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              {% if estimate.notes %}
+              <!-- Notes -->
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #fff3cd; border-left: 4px solid #fbd01c; margin: 20px 0;">
+                <tr>
+                  <td style="padding: 20px;">
+                    <p style="margin: 0 0 10px 0; color: #2f2e2e; font-weight: bold;">Additional Notes:</p>
+                    <p style="margin: 0; color: #2f2e2e; line-height: 1.6;">{{ estimate.notes|linebreaks }}</p>
+                  </td>
+                </tr>
+              </table>
+              {% endif %}
+
+              <!-- Next Steps -->
+              <h3 style="margin: 30px 0 15px 0; color: #2f2e2e; font-size: 18px;">Next Steps</h3>
+              <p style="margin: 0 0 15px 0; color: #2f2e2e; line-height: 1.6;">
+                A Listen Hear representative will contact you shortly to discuss your package selections and schedule installation.
+              </p>
+              <p style="margin: 0 0 20px 0; color: #2f2e2e; line-height: 1.6;">
+                These smart home packages are available for purchase and installation at any time during your project timeline.
+              </p>
+
+              <p style="margin: 0; color: #666; font-size: 14px;">
+                Questions? Contact us at <a href="mailto:hello@listenhearaudio.com" style="color: #417ce3; text-decoration: none;">hello@listenhearaudio.com</a>
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #f8f9fa; padding: 30px; text-align: center; border-top: 2px solid #dee2e6;">
+              <p style="margin: 0 0 5px 0; color: #666; font-size: 12px;">
+                <strong>Listen Hear Home Entertainment and Automation</strong>
+              </p>
+              <p style="margin: 0; color: #999; font-size: 11px;">
+                Generated with Claude Code
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

@@ -23,6 +23,19 @@ class UserAdmin(auth_admin.UserAdmin):
         (None, {"fields": ("email", "password")}),
         (_("Personal info"), {"fields": ("name",)}),
         (
+            _("Builder Profile"),
+            {
+                "fields": (
+                    "company_name",
+                    "contact_person",
+                    "phone",
+                    "bio",
+                    "website",
+                    "avatar",
+                ),
+            },
+        ),
+        (
             _("Permissions"),
             {
                 "fields": (
@@ -34,11 +47,12 @@ class UserAdmin(auth_admin.UserAdmin):
                 ),
             },
         ),
-        (_("Important dates"), {"fields": ("last_login", "date_joined")}),
+        (_("Important dates"), {"fields": ("last_login", "date_joined", "profile_created_at", "profile_updated_at")}),
     )
-    list_display = ["email", "name", "is_superuser"]
-    search_fields = ["name"]
+    list_display = ["email", "name", "company_name", "is_superuser"]
+    search_fields = ["name", "email", "company_name", "contact_person"]
     ordering = ["id"]
+    readonly_fields = ["profile_created_at", "profile_updated_at"]
     add_fieldsets = (
         (
             None,

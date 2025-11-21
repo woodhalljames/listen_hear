@@ -84,6 +84,9 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     "listen_hear.users",
+    "listen_hear.packages",
+    "listen_hear.cart",
+    "listen_hear.estimates",
     # Your stuff: custom apps go here
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -188,6 +191,7 @@ TEMPLATES = [
                 "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
                 "listen_hear.users.context_processors.allauth_settings",
+                "listen_hear.cart.context_processors.cart",
             ],
         },
     },
@@ -335,3 +339,5 @@ WEBPACK_LOADER = {
 }
 # Your stuff...
 # ------------------------------------------------------------------------------
+# Cart session ID
+CART_SESSION_ID = "cart"
